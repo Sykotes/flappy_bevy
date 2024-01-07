@@ -26,7 +26,8 @@ fn spawn_bird(
         SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform: Transform {
-                scale: Vec3::new(4.0, 4.0, 0.0),
+                translation: Vec3::new(-370.0, 200.0, 50.0),
+                scale: Vec3::new(3.0, 3.0, 0.0),
                 ..default()
             },
             ..default()
@@ -60,27 +61,49 @@ impl Default for Velocity {
     }
 }
 
+struct Angle(f32);
+
+impl Default for Angle {
+    fn default() -> Self {
+        Angle(0.0)
+    }
+}
+
 fn fly(
     mut bird: Query<(&mut Transform, With<Bird>)>,
     input_keys: Res<Input<KeyCode>>,
     input_mouse: Res<Input<MouseButton>>,
     time: Res<Time>,
     mut velocity: Local<Velocity>,
+    mut angle: Local<Angle>,
 ) {
     for (mut transform, _) in &mut bird {
+        const MAX_VELO: f32 = 250.0;
+        const MIN_VELO: f32 = -300.0;
+        const FLAP_STENGTH: f32 = 500.0; // max possible is MAX_VELO - MIN_VELO
+        const GRAVITY: f32 = 700.0;
 
-        velocity.0 -= 1000.0 * time.delta_seconds();
-        if velocity.0 < -400.0 {
-            velocity.0 = -400.0;
+        velocity.0 -= GRAVITY * time.delta_seconds();
+        if velocity.0 < MIN_VELO {
+            velocity.0 = MIN_VELO;
         }
 
         if input_keys.just_pressed(KeyCode::Space) || input_mouse.just_pressed(MouseButton::Left) {
-            velocity.0 += 500.0;
-            if velocity.0 > 350.0 {
-                velocity.0 = 350.0;
+            velocity.0 += FLAP_STENGTH;
+            if velocity.0 > MAX_VELO{
+                velocity.0 = MAX_VELO;
             }
         }
 
         transform.translation.y += velocity.0 * time.delta_seconds();
+
+        angle.0 += velocity.0 * 0.007 * time.delta_seconds();
+        if angle.0 > 0.8 {
+            angle.0 = 0.8;
+        }
+        if angle.0 < -0.8 {
+            angle.0 = -0.8;
+        }
+        transform.rotation = Quat::from_rotation_z(angle.0)
     }
 }
