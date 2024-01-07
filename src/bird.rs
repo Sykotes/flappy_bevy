@@ -90,14 +90,14 @@ fn fly(
 
         if input_keys.just_pressed(KeyCode::Space) || input_mouse.just_pressed(MouseButton::Left) {
             velocity.0 += FLAP_STENGTH;
-            if velocity.0 > MAX_VELO{
+            if velocity.0 > MAX_VELO {
                 velocity.0 = MAX_VELO;
             }
         }
 
         transform.translation.y += velocity.0 * time.delta_seconds();
 
-        angle.0 += velocity.0 * 0.007 * time.delta_seconds();
+        angle.0 += velocity.0 * 0.006 * time.delta_seconds();
         if angle.0 > 0.8 {
             angle.0 = 0.8;
         }
