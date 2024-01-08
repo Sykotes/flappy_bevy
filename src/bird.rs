@@ -4,11 +4,15 @@ pub struct BirdPlugin;
 
 impl Plugin for BirdPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_bird);
-        app.add_systems(Update, flap);
-        app.add_systems(Update, fly);
+        app.add_systems(Startup, spawn_bird)
+            .add_systems(Update, flap)
+            .add_systems(Update, fly)
+            .insert_resource(WingFlapTimer(Timer::from_seconds(0.2, TimerMode::Repeating)));
     }
 }
+
+#[derive(Resource)]
+struct WingFlapTimer(Timer);
 
 #[derive(Component)]
 struct Bird;
@@ -36,19 +40,46 @@ fn spawn_bird(
     ));
 }
 
+struct FlapTimerPaused(bool);
+
+impl Default for FlapTimerPaused {
+    fn default() -> Self {
+        FlapTimerPaused(true)
+    }
+}
+
 fn flap(
     mut bird: Query<(&mut Handle<TextureAtlas>, With<Bird>)>,
     input_keys: Res<Input<KeyCode>>,
     input_mouse: Res<Input<MouseButton>>,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    time: Res<Time>,
+    mut wing_flap_timer: ResMut<WingFlapTimer>,
+    mut wing_flap_timer_paused: Local<FlapTimerPaused>,
 ) {
+    wing_flap_timer.0.tick(time.delta());
+    wing_flap_timer_paused.0 = false;
+    if wing_flap_timer_paused.0 {
+        wing_flap_timer.0.pause()
+    } else {
+        wing_flap_timer.0.unpause()
+    }
+
+
     for (mut texture, _) in &mut bird {
+        if wing_flap_timer.0.finished() {
+            let texture_handle = asset_server.load("bird_layer1.png");
+            let texture_atlas =
+            TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
+            *texture = texture_atlases.add(texture_atlas);
+        }
         if input_keys.just_pressed(KeyCode::Space) || input_mouse.just_pressed(MouseButton::Left) {
             let texture_handle = asset_server.load("bird_layer2.png");
             let texture_atlas =
                 TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
             *texture = texture_atlases.add(texture_atlas);
+            wing_flap_timer_paused.0 = false;
         }
     }
 }
