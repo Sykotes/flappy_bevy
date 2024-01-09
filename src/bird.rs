@@ -7,7 +7,10 @@ impl Plugin for BirdPlugin {
         app.add_systems(Startup, spawn_bird)
             .add_systems(Update, flap)
             .add_systems(Update, fly)
-            .insert_resource(WingFlapTimer(Timer::from_seconds(0.2, TimerMode::Repeating)));
+            .insert_resource(WingFlapTimer(Timer::from_seconds(
+                0.2,
+                TimerMode::Repeating,
+            )));
     }
 }
 
@@ -66,12 +69,11 @@ fn flap(
         wing_flap_timer.0.unpause()
     }
 
-
     for (mut texture, _) in &mut bird {
         if wing_flap_timer.0.finished() {
             let texture_handle = asset_server.load("bird_layer1.png");
             let texture_atlas =
-            TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
+                TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
             *texture = texture_atlases.add(texture_atlas);
         }
         if input_keys.just_pressed(KeyCode::Space) || input_mouse.just_pressed(MouseButton::Left) {

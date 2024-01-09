@@ -12,7 +12,7 @@ fn main() {
                     primary_window: Some(Window {
                         title: "Flappy Bevy".into(),
                         resolution: WindowResolution::new(960.0, 540.0),
-                        //resizable: false,
+                        resizable: false,
                         ..default()
                     }),
                     ..default()
@@ -41,7 +41,7 @@ fn setup(mut commands: Commands, mut color: ResMut<ClearColor>, asset_server: Re
         texture: asset_server.load("ground.png"),
         transform: Transform {
             scale: Vec3::new(5.0, 5.0, 0.0),
-            translation: Vec3::new(0.0, -232.0, 1.0),
+            translation: Vec3::new(0.0, -232.0, 10.0),
             ..default()
         },
         ..default()
