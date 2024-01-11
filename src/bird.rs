@@ -103,11 +103,11 @@ fn fly(
         transform.translation.y += velocity.0 * time.delta_seconds();
 
         angle.0 += velocity.0 * 0.006 * time.delta_seconds();
-        if angle.0 > 0.8 {
-            angle.0 = 0.8;
+        if angle.0 > 0.5 {
+            angle.0 = 0.5;
         }
-        if angle.0 < -0.8 {
-            angle.0 = -0.8;
+        if angle.0 < -0.5 {
+            angle.0 = -0.5;
         }
         transform.rotation = Quat::from_rotation_z(angle.0)
     }

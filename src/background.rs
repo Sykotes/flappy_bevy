@@ -11,6 +11,7 @@ impl Plugin for BackgroundPlugin {
             .add_systems(Update, move_background_2)
             .add_systems(Update, spawn_ground)
             .add_systems(Update, move_ground)
+            .add_systems(Update, delete_background)
             .insert_resource(Layer1SpawnTimer(Timer::from_seconds(
                 17.95,
                 TimerMode::Repeating,
@@ -25,6 +26,9 @@ impl Plugin for BackgroundPlugin {
             )));
     }
 }
+
+#[derive(Component)]
+struct Deletable;
 
 #[derive(Component)]
 struct Background1;
@@ -48,6 +52,7 @@ fn init_background(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Background1,
+            Deletable,
         ));
         commands.spawn((
             SpriteBundle {
@@ -60,6 +65,7 @@ fn init_background(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Background2,
+            Deletable,
         ));
     }
 }
@@ -77,6 +83,7 @@ fn init_ground(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Ground,
+            Deletable,
         ));
     }
 }
@@ -108,6 +115,7 @@ fn spawn_background(
                 ..default()
             },
             Background1,
+            Deletable,
         ));
     }
     if layer2_timer.0.finished() {
@@ -122,6 +130,7 @@ fn spawn_background(
                 ..default()
             },
             Background2,
+            Deletable,
         ));
     }
 }
@@ -166,6 +175,7 @@ fn spawn_ground(
                 ..default()
             },
             Ground,
+            Deletable,
         ));
     }
 }
@@ -173,5 +183,16 @@ fn spawn_ground(
 fn move_ground(mut ground: Query<(&mut Transform, With<Ground>)>, time: Res<Time>) {
     for (mut transform, _) in &mut ground {
         transform.translation.x -= 110.0 * time.delta_seconds();
+    }
+}
+
+fn delete_background(
+    mut commands: Commands,
+    query: Query<(Entity, &Transform), With<Deletable>>,
+) {
+    for (entity, transform) in &query {
+        if transform.translation.x < -500.0 {
+            commands.entity(entity).despawn();
+        }
     }
 }

@@ -7,6 +7,7 @@ impl Plugin for PipesPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, spawn_pipes)
             .add_systems(Update, move_pipes)
+            .add_systems(Update, delete_pipes)
             .insert_resource(PipeSpawnTimer(Timer::from_seconds(
                 3.2,
                 TimerMode::Repeating,
@@ -66,5 +67,13 @@ fn spawn_pipes(
 fn move_pipes(mut pipe: Query<(&mut Transform, With<Pipe>)>, time: Res<Time>) {
     for (mut transform, _) in &mut pipe {
         transform.translation.x -= 110.0 * time.delta_seconds();
+    }
+}
+
+fn delete_pipes(mut commands: Commands, mut pipe: Query<(Entity, &mut Transform), With<Pipe>>) {
+    for (entity, transform) in &mut pipe {
+        if transform.translation.x < -300.0 {
+           commands.entity(entity).despawn();
+        }
     }
 }
