@@ -47,10 +47,7 @@ fn spawn_bird(
     ));
 }
 
-fn flap(
-    mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>,
-    input_keys: Res<Input<KeyCode>>,
-) {
+fn flap(mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>, input_keys: Res<Input<KeyCode>>) {
     for (mut texture_atas_sprite, _) in &mut bird {
         if input_keys.just_pressed(KeyCode::Space) {
             texture_atas_sprite.index = 1;
