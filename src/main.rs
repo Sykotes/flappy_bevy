@@ -2,6 +2,7 @@ use bevy::{prelude::*, window::WindowResolution};
 
 mod bird;
 mod pipes;
+// mod background;
 
 fn main() {
     App::new()
@@ -11,7 +12,7 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Flappy Bevy".into(),
-                        resolution: WindowResolution::new(960.0, 540.0),
+                        resolution: WindowResolution::new(432.0, 768.0),
                         resizable: false,
                         ..default()
                     }),
@@ -32,7 +33,7 @@ fn setup(mut commands: Commands, mut color: ResMut<ClearColor>, asset_server: Re
         texture: asset_server.load("background.png"),
         transform: Transform {
             translation: Vec3::new(0.0, 0.0, 0.0),
-            scale: Vec3::new(5.0, 5.0, 0.0),
+            scale: Vec3::new(4.0, 4.0, 0.0),
             ..default()
         },
         ..default()
@@ -40,8 +41,8 @@ fn setup(mut commands: Commands, mut color: ResMut<ClearColor>, asset_server: Re
     commands.spawn((SpriteBundle {
         texture: asset_server.load("ground.png"),
         transform: Transform {
-            scale: Vec3::new(5.0, 5.0, 0.0),
-            translation: Vec3::new(0.0, -232.0, 10.0),
+            scale: Vec3::new(4.0, 4.0, 0.0),
+            translation: Vec3::new(0.0, -336.0, 10.0),
             ..default()
         },
         ..default()

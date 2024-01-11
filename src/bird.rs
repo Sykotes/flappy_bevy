@@ -25,15 +25,19 @@ fn spawn_bird(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = asset_server.load("bird_layer1.png");
+    let texture_handle = asset_server.load("bird.png");
     let texture_atlas =
-        TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
+        TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 2, 1, None, None);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
     commands.spawn((
         SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
+            sprite: TextureAtlasSprite {
+                index: 0,
+                ..default()
+            },
             transform: Transform {
-                translation: Vec3::new(-370.0, 200.0, 50.0),
+                translation: Vec3::new(-150.0, 200.0, 50.0),
                 scale: Vec3::new(3.0, 3.0, 0.0),
                 ..default()
             },
@@ -43,45 +47,16 @@ fn spawn_bird(
     ));
 }
 
-struct FlapTimerPaused(bool);
-
-impl Default for FlapTimerPaused {
-    fn default() -> Self {
-        FlapTimerPaused(true)
-    }
-}
-
 fn flap(
-    mut bird: Query<(&mut Handle<TextureAtlas>, With<Bird>)>,
+    mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>,
     input_keys: Res<Input<KeyCode>>,
-    input_mouse: Res<Input<MouseButton>>,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    time: Res<Time>,
-    mut wing_flap_timer: ResMut<WingFlapTimer>,
-    mut wing_flap_timer_paused: Local<FlapTimerPaused>,
 ) {
-    wing_flap_timer.0.tick(time.delta());
-    wing_flap_timer_paused.0 = false;
-    if wing_flap_timer_paused.0 {
-        wing_flap_timer.0.pause()
-    } else {
-        wing_flap_timer.0.unpause()
-    }
-
-    for (mut texture, _) in &mut bird {
-        if wing_flap_timer.0.finished() {
-            let texture_handle = asset_server.load("bird_layer1.png");
-            let texture_atlas =
-                TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
-            *texture = texture_atlases.add(texture_atlas);
+    for (mut texture_atas_sprite, _) in &mut bird {
+        if input_keys.just_pressed(KeyCode::Space) {
+            texture_atas_sprite.index = 1;
         }
-        if input_keys.just_pressed(KeyCode::Space) || input_mouse.just_pressed(MouseButton::Left) {
-            let texture_handle = asset_server.load("bird_layer2.png");
-            let texture_atlas =
-                TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 1, 1, None, None);
-            *texture = texture_atlases.add(texture_atlas);
-            wing_flap_timer_paused.0 = false;
+        if input_keys.just_released(KeyCode::Space) {
+            texture_atas_sprite.index = 0;
         }
     }
 }
@@ -111,9 +86,9 @@ fn fly(
     mut angle: Local<Angle>,
 ) {
     for (mut transform, _) in &mut bird {
-        const MAX_VELO: f32 = 250.0;
+        const MAX_VELO: f32 = 240.0;
         const MIN_VELO: f32 = -300.0;
-        const FLAP_STENGTH: f32 = 500.0; // max possible is MAX_VELO - MIN_VELO
+        const FLAP_STENGTH: f32 = 350.0; // max possible is MAX_VELO - MIN_VELO
         const GRAVITY: f32 = 700.0;
 
         velocity.0 -= GRAVITY * time.delta_seconds();
