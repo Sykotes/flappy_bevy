@@ -12,15 +12,15 @@ impl Plugin for BackgroundPlugin {
             .add_systems(Update, spawn_ground)
             .add_systems(Update, move_ground)
             .insert_resource(Layer1SpawnTimer(Timer::from_seconds(
-                18.0,
+                17.95,
                 TimerMode::Repeating,
             )))
             .insert_resource(Layer2SpawnTimer(Timer::from_seconds(
-                7.19,
+                7.17,
                 TimerMode::Repeating,
             )))
             .insert_resource(GroundSpawnTimer(Timer::from_seconds(
-                3.92,
+                3.89,
                 TimerMode::Repeating,
             )));
     }

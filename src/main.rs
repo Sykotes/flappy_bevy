@@ -1,14 +1,12 @@
 mod background;
 mod bird;
 mod pipes;
-mod collision_detection;
 
 use bevy::{prelude::*, window::WindowResolution};
 
 use background::BackgroundPlugin;
 use bird::BirdPlugin;
 use pipes::PipesPlugin;
-use collision_detection::CollisionDetectionPlugin;
 
 fn main() {
     App::new()
@@ -29,7 +27,6 @@ fn main() {
         .add_plugins(BirdPlugin)
         .add_plugins(PipesPlugin)
         .add_plugins(BackgroundPlugin)
-        .add_plugins(CollisionDetectionPlugin)
         .run();
 }
 
