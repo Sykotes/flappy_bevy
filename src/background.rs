@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::gamestate::{GameState, Game};
+
 pub struct BackgroundPlugin;
 
 impl Plugin for BackgroundPlugin {
@@ -100,7 +102,11 @@ fn spawn_background(
     time: Res<Time>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    gamestate: Res<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     layer1_timer.0.tick(time.delta());
     layer2_timer.0.tick(time.delta());
     if layer1_timer.0.finished() {
@@ -138,7 +144,11 @@ fn spawn_background(
 fn move_background_1(
     mut background_1: Query<(&mut Transform, With<Background1>)>,
     time: Res<Time>,
+    gamestate: Res<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (mut transform, _) in &mut background_1 {
         transform.translation.x -= 24.0 * time.delta_seconds();
     }
@@ -147,7 +157,11 @@ fn move_background_1(
 fn move_background_2(
     mut background_2: Query<(&mut Transform, With<Background2>)>,
     time: Res<Time>,
+    gamestate: Res<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (mut transform, _) in &mut background_2 {
         transform.translation.x -= 60.0 * time.delta_seconds();
     }
@@ -161,7 +175,11 @@ fn spawn_ground(
     time: Res<Time>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    gamestate: Res<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     ground_spawn_timer.0.tick(time.delta());
     if ground_spawn_timer.0.finished() {
         commands.spawn((
@@ -180,7 +198,14 @@ fn spawn_ground(
     }
 }
 
-fn move_ground(mut ground: Query<(&mut Transform, With<Ground>)>, time: Res<Time>) {
+fn move_ground(
+    mut ground: Query<(&mut Transform, With<Ground>)>,
+    time: Res<Time>,
+    gamestate: Res<GameState>,
+) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (mut transform, _) in &mut ground {
         transform.translation.x -= 110.0 * time.delta_seconds();
     }
@@ -189,7 +214,11 @@ fn move_ground(mut ground: Query<(&mut Transform, With<Ground>)>, time: Res<Time
 fn delete_background(
     mut commands: Commands,
     query: Query<(Entity, &Transform), With<Deletable>>,
+    gamestate: Res<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (entity, transform) in &query {
         if transform.translation.x < -500.0 {
             commands.entity(entity).despawn();

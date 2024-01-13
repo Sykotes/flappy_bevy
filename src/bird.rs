@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::gamestate::{GameState, Game};
+
 pub struct BirdPlugin;
 
 impl Plugin for BirdPlugin {
@@ -47,7 +49,14 @@ fn spawn_bird(
     ));
 }
 
-fn flap(mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>, input_keys: Res<Input<KeyCode>>) {
+fn flap(
+    mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>, 
+    input_keys: Res<Input<KeyCode>>,
+    gamestate: ResMut<GameState>,
+) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (mut texture_atas_sprite, _) in &mut bird {
         if input_keys.just_pressed(KeyCode::Space) {
             texture_atas_sprite.index = 1;
@@ -81,7 +90,11 @@ fn fly(
     time: Res<Time>,
     mut velocity: Local<Velocity>,
     mut angle: Local<Angle>,
+    gamestate: ResMut<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (mut transform, _) in &mut bird {
         const MAX_VELO: f32 = 240.0;
         const MIN_VELO: f32 = -300.0;

@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 
+use crate::gamestate::{GameState, Game};
+
 pub struct PipesPlugin;
 
 impl Plugin for PipesPlugin {
@@ -27,7 +29,11 @@ fn spawn_pipes(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut pipe_spawn_timer: ResMut<PipeSpawnTimer>,
     time: Res<Time>,
+    gamestate: Res<GameState>,
 ) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     pipe_spawn_timer.0.tick(time.delta());
     if pipe_spawn_timer.0.finished() {
         let texture_handle = asset_server.load("pipe.png");
@@ -73,7 +79,7 @@ fn move_pipes(mut pipe: Query<(&mut Transform, With<Pipe>)>, time: Res<Time>) {
 fn delete_pipes(mut commands: Commands, mut pipe: Query<(Entity, &mut Transform), With<Pipe>>) {
     for (entity, transform) in &mut pipe {
         if transform.translation.x < -300.0 {
-           commands.entity(entity).despawn();
+            commands.entity(entity).despawn();
         }
     }
 }
