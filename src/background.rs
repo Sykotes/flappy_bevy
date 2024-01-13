@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::gamestate::{GameState, Game};
+use crate::gamestate::{Game, GameState};
 
 pub struct BackgroundPlugin;
 

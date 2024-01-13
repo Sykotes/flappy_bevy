@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 
-use crate::gamestate::{GameState, Game};
+use crate::gamestate::{Game, GameState};
 
 pub struct PipesPlugin;
 
@@ -21,7 +21,7 @@ impl Plugin for PipesPlugin {
 struct PipeSpawnTimer(Timer);
 
 #[derive(Component)]
-struct Pipe;
+pub struct Pipe;
 
 fn spawn_pipes(
     mut commands: Commands,
@@ -70,7 +70,14 @@ fn spawn_pipes(
     }
 }
 
-fn move_pipes(mut pipe: Query<(&mut Transform, With<Pipe>)>, time: Res<Time>) {
+fn move_pipes(
+    mut pipe: Query<(&mut Transform, With<Pipe>)>,
+    time: Res<Time>,
+    gamestate: Res<GameState>,
+) {
+    if gamestate.0.gamestate != Game::Running {
+        return;
+    }
     for (mut transform, _) in &mut pipe {
         transform.translation.x -= 110.0 * time.delta_seconds();
     }

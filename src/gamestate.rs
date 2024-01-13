@@ -6,7 +6,7 @@ pub struct GameData {
 }
 
 #[derive(PartialEq)]
-pub enum Game{
+pub enum Game {
     Opened,
     Running,
     Over,
@@ -14,11 +14,3 @@ pub enum Game{
 
 #[derive(Resource)]
 pub struct GameState(pub GameData);
-
-fn handle_gamestates(
-    gamestate: ResMut<GameState>
-) {
-    if gamestate.0.gamestate == Game::Over {
-        println!("Score: {}", gamestate.0.score);
-    }
-}

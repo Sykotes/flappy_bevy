@@ -1,6 +1,8 @@
 use bevy::prelude::*;
+use bevy::sprite::collide_aabb::collide;
 
-use crate::gamestate::{GameState, Game};
+use crate::gamestate::{Game, GameState};
+use crate::pipes::*;
 
 pub struct BirdPlugin;
 
@@ -9,6 +11,8 @@ impl Plugin for BirdPlugin {
         app.add_systems(Startup, spawn_bird)
             .add_systems(Update, flap)
             .add_systems(Update, fly)
+            .add_systems(Update, hit_ground)
+            .add_systems(Update, hit_pipe)
             .insert_resource(WingFlapTimer(Timer::from_seconds(
                 0.2,
                 TimerMode::Repeating,
@@ -50,7 +54,7 @@ fn spawn_bird(
 }
 
 fn flap(
-    mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>, 
+    mut bird: Query<(&mut TextureAtlasSprite, With<Bird>)>,
     input_keys: Res<Input<KeyCode>>,
     gamestate: ResMut<GameState>,
 ) {
@@ -122,6 +126,40 @@ fn fly(
         if angle.0 < -0.5 {
             angle.0 = -0.5;
         }
+        if transform.translation.y > 350.0 {
+            transform.translation.y = 350.0;
+            velocity.0 = -1.0;
+        }
         transform.rotation = Quat::from_rotation_z(angle.0)
+    }
+}
+
+fn hit_ground(bird: Query<&Transform, With<Bird>>, mut gamestate: ResMut<GameState>) {
+    for transform in &bird {
+        if transform.translation.y < -248.0 {
+            gamestate.0.gamestate = Game::Over;
+        }
+    }
+}
+
+fn hit_pipe(
+    bird: Query<&Transform, With<Bird>>,
+    pipe: Query<&Transform, With<Pipe>>,
+    mut gamestate: ResMut<GameState>,
+) {
+    let bird_size = Vec2::new(30.0, 30.0);
+    let pipe_size = Vec2::new(96.0, 378.0);
+    for bird_transform in &bird {
+        for pipe_transform in &pipe {
+            let collision = collide(
+                bird_transform.translation,
+                bird_size,
+                pipe_transform.translation,
+                pipe_size,
+            );
+            if collision.is_some() {
+                gamestate.0.gamestate = Game::Over;
+            }
+        }
     }
 }
